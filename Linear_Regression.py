@@ -17,35 +17,37 @@ y_test = X_test.dot(w_true) + np.random.normal(0,0.5,size=(n,1))
 #########   Do not change the code above  ############
 ######################################################
 
-def square_loss(w,X,y):
-	"""
-	Implement total squared error given weight w, dataset (X,y)
-	Inputs:
-	- w: weight for the linear function
-	- X: dataset of size (n,d)
-	- y: label of size (n,1) 
-	Returns:
-	- loss: total squared error of w on dataset (X,y)
-	"""
-	################################
-	##     Write your code here   ##
-	################################
-
+def square_loss(w, X, y):
+    """
+    Implement total squared error given weight w, dataset (X,y)
+    Inputs:
+    - w: weight for the linear function
+    - X: dataset of size (n,d)
+    - y: label of size (n,1)
+    Returns:
+    - loss: total squared error of w on dataset (X,y)
+    """
+    y_pred = X.dot(w)
+    residuals = y_pred - y
+    loss = np.sum(residuals ** 2)
+    return loss
 
 #### Implement closed-form solution given dataset (X,y)
-def closed_form(X,y):
-	"""
-	Implement closed-form solution given dataset (X,y)
-	Inputs:
-	- X: dataset of size (n,d)
-	- y: label of size (n,1) 
-	Returns:
-	- w_LS: closed form solution of the weight
-	- loss: total squared error of w_LS on dataset (X,y)
-	"""
-	################################
-	##     Write your code here   ##
-	################################
+def closed_form(X, y):
+    """
+    Implement closed-form solution given dataset (X,y)
+    Inputs:
+    - X: dataset of size (n,d)
+    - y: label of size (n,1)
+    Returns:
+    - w_LS: closed form solution of the weight
+    - loss: total squared error of w_LS on dataset (X,y)
+    """
+    XtX = X.T.dot(X)
+    Xty = X.T.dot(y)
+    w_LS = np.linalg.inv(XtX).dot(Xty)
+    loss = square_loss(w_LS, X, y)
+    return w_LS, loss
 
 
 def gradient_descent(X, y, lr_set, N_iteration):
@@ -62,9 +64,31 @@ def gradient_descent(X, y, lr_set, N_iteration):
       with respect to the i-th iteration
     - You can print the final objective value within this function to show the performance of the best step size
     """
-   	################################
-	##     Write your code here   ##
-	################################
+    n, d = X.shape
+    plt.figure()
+
+    for lr in lr_set:
+        w = np.zeros((d, 1))
+        losses = []
+
+        for t in range(N_iteration):
+            # compute gradient of total squared error
+            residuals = X.dot(w) - y        # (n,1)
+            grad = 2 * X.T.dot(residuals)   # (d,1)
+            # gradient descent update
+            w = w - lr * grad
+
+            losses.append(square_loss(w, X, y))
+
+        plt.plot(range(1, N_iteration + 1), losses, label=f"lr={lr}")
+        print(f"Final training loss with lr={lr}: {losses[-1]}")
+
+    plt.xlabel("Iteration")
+    plt.ylabel("Total squared error F(w)")
+    plt.title("Gradient Descent on Linear Regression")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 
 def stochastic_gradient_descent(X,y,lr_set,N_iteration):
@@ -80,37 +104,71 @@ def stochastic_gradient_descent(X,y,lr_set,N_iteration):
 	- each curve contains 1000 data points, in which the i-th data point represents the total squared-error with respect to the i-th iteration
 	- You can print the final objective value within this function to show the performance of best step size
 	"""
-	np.random.seed(1) # Use this fixed random_seed in sampling
-	################################
-	##     Write your code here   ##
-	################################
+     
+def stochastic_gradient_descent(X, y, lr_set, N_iteration):
+    """
+    Implement stochastic gradient descent on the square-error given dataset (X,y)
+    """
+    np.random.seed(1)  # Use this fixed random_seed in sampling
+    n, d = X.shape
 
+    plt.figure()
+
+    for lr in lr_set:
+        w = np.zeros((d, 1))
+        losses = []
+
+        for t in range(N_iteration):
+            # sample one index uniformly
+            i = np.random.randint(0, n)
+            xi = X[i].reshape(1, -1)        # shape (1,d)
+            yi = y[i]                       # shape (1,) or (1,1)
+
+            # prediction and gradient for this single point
+            pred_i = xi.dot(w)              # (1,1)
+            error_i = pred_i - yi           # (1,1)
+            grad_i = 2 * xi.T.dot(error_i)  # (d,1)
+
+            # SGD update
+            w = w - lr * grad_i
+            losses.append(square_loss(w, X, y))
+
+        plt.plot(range(1, N_iteration + 1), losses, label=f"lr={lr}")
+        print(f"Final training loss (SGD) with lr={lr}: {losses[-1]}")
+
+    plt.xlabel("Iteration")
+    plt.ylabel("Total squared error F(w)")
+    plt.title("Stochastic Gradient Descent on Linear Regression")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 def main():
-	### Problem 4.1 ###
-	w_LS, loss_LS_train = closed_form(X,y)
-	w_0 = np.zeros((d,1))
-	loss_0_train = square_loss(w_0,X,y)
-	loss_LS_test = square_loss(w_LS,X_test, y_test)
+	 # Part 4.1
+    w_LS, loss_LS_train = closed_form(X, y)
+    w_0 = np.zeros((d,1))
+    loss_0_train = square_loss(w_0, X, y)
 
-	print("F(w_LS)=", loss_LS_train, " on training data")
-	print("F(w_0)=", loss_0_train, " on training data")
-	print("F(w_LS)=", loss_LS_test, " on testing data")
+    loss_LS_test = square_loss(w_LS, X_test, y_test)
 
+    gap = loss_LS_test - loss_LS_train
+    print("F(w_LS) =", loss_LS_train, "on training data")
+    print("F(w_0)  =", loss_0_train, "on training data")
+    print("F(w_LS) =", loss_LS_test, "on testing data")
+    print("Gap (test - train) =", gap)
 
 	### Problem 4.2 (Gradient Descent) ###
-	### You can plot more options of lr_set if necessary
-	lr_set = [0.00005, 0.0005, 0.0007]
-	w_0 = np.zeros((n,1))
-	N_iter = 20
-	gradient_descent(X,y,lr_set,N_iter)
+    lr_set = [0.00005, 0.0005, 0.0007]
+    w_0 = np.zeros((n,1))
+    N_iter = 20
+    gradient_descent(X,y,lr_set,N_iter)
 
 	### Problem 4.3 (Stochastic Gradient Descent) ###
 	### You can plot more options of lr_set if necessary
-	lr_set = [0.0005, 0.005, 0.01]
-	w_0 = np.zeros((n,1))
-	N_iter = 1000
-	stochastic_gradient_descent(X,y,lr_set,N_iter)
+    lr_set = [0.0005, 0.005, 0.01]
+    w_0 = np.zeros((n,1))
+    N_iter = 1000
+    stochastic_gradient_descent(X,y,lr_set,N_iter)
 
 
 if __name__ == "__main__":
