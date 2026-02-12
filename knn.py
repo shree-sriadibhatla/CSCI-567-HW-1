@@ -94,7 +94,7 @@ def compute_l2_distances(Xtrain, X):
 	#####################################################
 	X_l2_square = np.sum(X**2, axis=1).reshape(-1,1)
 	Xtrains_l2_square = np.sum(Xtrain**2, axis=1).reshape(1,-1)
-	dists = np.sqrt(X_l2_square+Xtrains_l2_square-2*(X@Xtrain.T))
+	dists = np.sqrt(np.maximum(X_l2_square+Xtrains_l2_square-2*(X@Xtrain.T),0))
 	return dists
 
 
@@ -280,9 +280,28 @@ def main():
 	#==========select the best k by using validation set==============
 	dists = compute_l2_distances(Xtrain, Xval)
 	best_k, validation_error, best_err = find_best_k(K, ytrain, dists, yval)
+	# plt.figure()
+	# plt.title('training error per k')
+	# plt.xlabel('k')
+	# plt.ylabel('error rate')
+	# plt.plot(K,train_error,marker='o',label='training error')
+	# plt.legend() 
+	# plt.xticks(K)
+	# plt.grid(True)
+	# plt.show()
+
+	# plt.figure()
+	# plt.title('validation error per k')
+	# plt.xlabel('k')
+	# plt.ylabel('error rate')
+	# plt.plot(K,validation_error,marker='o',label='validation error',color='orange')
+	# plt.legend() 
+	# plt.xticks(K)
+	# plt.grid(True)
+	# plt.show()
 			
 	plt.figure()
-	plt.title('training and validation error vs k')
+	plt.title('training and validation error per k')
 	plt.xlabel('k')
 	plt.ylabel('error rate')
 	plt.plot(K,train_error,marker='o',label='training error')
