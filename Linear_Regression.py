@@ -27,9 +27,7 @@ def square_loss(w,X,y):
 	Returns:
 	- loss: total squared error of w on dataset (X,y)
 	"""
-	################################
-	##     Write your code here   ##
-	################################
+	
 	y_pred = X.dot(w)
 	residuals = y_pred - y
 	loss = np.sum(residuals ** 2)
@@ -47,9 +45,7 @@ def closed_form(X,y):
 	- w_LS: closed form solution of the weight
 	- loss: total squared error of w_LS on dataset (X,y)
 	"""
-	################################
-	##     Write your code here   ##
-	################################
+	
 	XtX = X.T.dot(X)
 	Xty = X.T.dot(y)
 	w_LS = np.linalg.inv(XtX).dot(Xty)
@@ -71,9 +67,7 @@ def gradient_descent(X, y, lr_set, N_iteration):
       with respect to the i-th iteration
     - You can print the final objective value within this function to show the performance of the best step size
     """
-   	################################
-	##     Write your code here   ##
-	################################
+
     n, d = X.shape
     plt.figure()
 
@@ -115,9 +109,7 @@ def stochastic_gradient_descent(X,y,lr_set,N_iteration):
 	- You can print the final objective value within this function to show the performance of best step size
 	"""
 	np.random.seed(1) # Use this fixed random_seed in sampling
-	################################
-	##     Write your code here   ##
-	################################
+
 	n, d = X.shape
 
 	plt.figure()
@@ -166,14 +158,12 @@ def main():
 
 
 	### Problem 4.2 (Gradient Descent) ###
-	### You can plot more options of lr_set if necessary
 	lr_set = [0.00005, 0.0005, 0.0007]
 	w_0 = np.zeros((n,1))
 	N_iter = 20
 	gradient_descent(X,y,lr_set,N_iter)
 
 	### Problem 4.3 (Stochastic Gradient Descent) ###
-	### You can plot more options of lr_set if necessary
 	lr_set = [0.0005, 0.005, 0.01]
 	w_0 = np.zeros((n,1))
 	N_iter = 1000
